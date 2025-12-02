@@ -169,6 +169,7 @@ def main():
             if beam.rct.colliderect(bomb.rct):
                 beam = None #ビーム消滅
                 bomb = None #爆弾消滅
+                bird.change_img(6, screen)
 
         if bomb is not None and bird.rct.colliderect(bomb.rct):
             bird.change_img(8, screen)
