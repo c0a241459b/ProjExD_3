@@ -8,6 +8,8 @@ import pygame as pg
 WIDTH = 1100  # ゲームウィンドウの幅
 HEIGHT = 650  # ゲームウィンドウの高さ
 NUM_OF_BOMBS = 5 # 爆弾の数
+
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -147,8 +149,8 @@ def main():
     bg_img = pg.image.load("fig/pg_bg.jpg")
     bird = Bird((300, 200))
     bombs = [Bomb((255, 0, 0), 10) for i in (range(NUM_OF_BOMBS))]
-
     beam = None  # ゲーム初期化時にはビームは存在しない
+    score = 0 # 撃ち落とした爆弾の数
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -160,18 +162,23 @@ def main():
                 beam = Beam(bird)            
         screen.blit(bg_img, [0, 0])
         
-        if bird.rct.colliderect(bomb.rct):
-            # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-            bird.change_img(8, screen)
-            pg.display.update()
-            time.sleep(1)
-            return
+        for bomb in bombs:
+            if bird.rct.colliderect(bomb.rct):
+                # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                bird.change_img(8, screen)
+                pg.display.update()
+                time.sleep(1)
+                return
 
-        if bomb is not None and beam is not None:
-            if beam.rct.colliderect(bomb.rct):
-                beam = None #ビーム消滅
-                bomb = None #爆弾消滅
-                bird.change_img(6, screen)
+        if beam is not None:
+            for i, bomb in enumerate(bombs):
+                if beam.rct.colliderect(bomb.rct):
+                    bombs[i] = None     # 爆弾削除
+                    beam = None         # ビーム削除
+                    bird.change_img(6, screen)
+                    score += 1          # スコア加算
+                    break
+
 
         bombs = [bomb for bomb in bombs if bomb is not None]  # リスト更新
 
@@ -185,6 +192,11 @@ def main():
         for bomb in bombs:
             bomb.update(screen)
 
+        fonto = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
+        txt = fonto.render(f"ｽｺｱ：{score}", True, (0,0,255))
+        screen.blit(txt, [30, 30])
+
+        
         pg.display.update()
         tmr += 1
         clock.tick(50)
